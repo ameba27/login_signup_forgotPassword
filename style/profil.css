@@ -1,0 +1,60 @@
+body {
+    box-sizing: border-box;
+}
+
+#user {
+    margin: auto;
+    width: 10%;
+    height: 6.7em;
+    border: 1px solid black;
+    text-align: center;
+    background-color: #000;
+}
+
+#user i {
+   font-size: 4em;
+   font-weight: 900;
+   color: #d3d3d3;
+}
+
+#user span {
+    color: #fff;
+}
+
+#user button {
+    width: 100%;
+    height:1em;
+    background-color: #dd3;
+}
+
+#info {
+    margin: auto;
+    width: 40%;
+    height: 60vh;
+    border: 2px solid black;
+    margin-top: 5em;
+    background-color: #d3d3d3;
+}
+
+#info h3 {
+    text-align: center;
+    font-weight: 900;
+    text-decoration: 4px underline #fff;
+    color: #fff;
+    text-shadow: 0 1px 11px #000;
+}
+
+#info h2 {
+    color: #fff;
+    margin-bottom: 1em;
+    text-shadow: 0 1px 11px #000;
+    margin-left: 1em;
+}
+
+#info span strong {
+    color: black;
+}
+
+#info p {
+    color: red;
+}

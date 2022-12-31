@@ -1,0 +1,51 @@
+body {
+    box-sizing: border-box;
+}
+
+form{
+    margin: auto;
+    text-align: center;
+    width: 50%;
+    height: 55vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    margin-top: 6em;
+    background-color: #d3d3d3;
+    box-shadow: 1px 1px 12px #000;
+}
+
+form:hover {
+    box-shadow: 1px 1px 12px blue;
+    background-color: rgb(245, 243, 243);
+    color: blue;
+    text-shadow: 0 1px 11px blue;
+}
+
+.input {
+    width: 29em;
+}
+
+form div input[type="email"] {
+    margin-bottom: 1em;
+}
+
+form div input[type="password"] {
+    margin-bottom: 1em;
+}
+
+form h3 {
+    margin-top: 1em;
+    font-weight: 800;
+    text-shadow: 0 1px 11px #000;
+}
+
+#lien {
+    margin: auto;
+    width: 70%;
+    display: flex;
+    justify-content: space-between;
+
+}
+
