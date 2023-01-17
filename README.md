@@ -11,7 +11,7 @@ Dans cette étape, la page index.php, suivie de la création de la base de donn�
 
 - Phase 1: index.php, exemple.sql et lien.php
    - index.php :
-Dans la page index se trouve le formulaire d'inscription fait avec du htlm, css et du boostrap et le script permettant d'envoyer les données à la base de donnée précisément dans la table "users".
+Dans la page index se trouve le formulaire d'inscription fait avec du htlm, css et du boostrap et le script permettant d'envoyer les données dans la base de données précisément dans la table "users".
 
        Exemple: formulaire d'inscription
 
@@ -31,4 +31,59 @@ Dans la page index se trouve le formulaire d'inscription fait avec du htlm, css 
                 <input type="submit" class="btn btn-success">
             </form>
 
-            
+
+   - exemple.sql :
+Afin de pouvoir stocker et gérer les données, la base de données "exemple" est créée avec comme première table "users" qui recevra les données entrées à partir du formulaire d'inscription.
+
+        Exemple : base de données "exemple" et table "users" 
+
+            -- phpMyAdmin SQL Dump
+            -- version 5.2.0
+            -- https://www.phpmyadmin.net/
+            --
+            -- Hôte : 127.0.0.1
+            -- Généré le : sam. 31 déc. 2022 à 11:03
+            -- Version du serveur : 10.4.25-MariaDB
+            -- Version de PHP : 8.1.10
+
+            SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
+            START TRANSACTION;
+            SET time_zone = "+00:00";
+
+
+            /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+            /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+            /*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+            /*!40101 SET NAMES utf8mb4 */;
+
+            --
+            -- Base de données : `exemple`
+            -- Structure de la table `users`
+            --
+
+            CREATE TABLE `users` (
+            `id` int(11) NOT NULL,
+            `nom` varchar(200) NOT NULL,
+            `prenom` varchar(200) NOT NULL,
+            `email` varchar(700) NOT NULL,
+            `genre` varchar(100) NOT NULL,
+            `pass` varchar(700) NOT NULL,
+            `clef` int(7) NOT NULL,
+            `confirm` int(1) NOT NULL,
+            `date_inscription` date NOT NULL DEFAULT current_timestamp()
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+            --
+
+
+   - lien.php :
+Dans le but créer une connexion à la base de donnée pour manipuler les données et de voir fonctionner les formulaires lien.php se trouvant dans le dossier database est mise en place. Dans cette page est mise le script permettant de se connecter à la base de données "exemple".
+
+        Exemple : lien.php
+
+            $bd = new PDO('mysql:host=localhost; dbname=exemple', 'root', '');
+            $bd->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_WARNING);
+        
+
+- Phase 2: login.php
+   - login.php: 
