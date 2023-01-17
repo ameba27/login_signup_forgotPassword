@@ -113,11 +113,11 @@ Dans la page index se trouve le formulaire d'inscription fait avec du htlm, css 
             }else{
                 $message ="<p style=\"text-align: center\" class=\"alert alert-danger\">Veuillez entrer votre prénom</p>"; 
             }
-        }else{
-            $message ="<p style=\"text-align: center\" class=\"alert alert-danger\">Veuillez entrer votre nom</p>"; 
+            }else{
+                $message ="<p style=\"text-align: center\" class=\"alert alert-danger\">Veuillez entrer votre nom</p>"; 
+            }
         }
     }
- }
 
 
    - exemple.sql :
