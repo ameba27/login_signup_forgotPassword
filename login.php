@@ -20,7 +20,7 @@ if(isset($_POST)){
             $prenom = $_SESSION['prenom'];
             $_SESSION['genre'];
             $genre = $_SESSION['genre'];
-            $_SESSION['pass'] = $pass;
+            $_SESSION['email'] = $mail;
             $_SESSION['pass'] = $pass;
             $_SESSION['id'] = $req->fetch()['id'];
 

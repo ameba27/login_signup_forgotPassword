@@ -32,6 +32,95 @@ Dans la page index se trouve le formulaire d'inscription fait avec du htlm, css 
             </form>
 
 
+        Exemple : le script  d'insertion des données et d'envoi de message de confirmation
+
+            session_start();
+            require './database/lien.php';
+            require "./phpMailer/mail.php";
+
+            $message ="";
+            if(isset($_POST)){
+                if(isset($_POST['nom']) && !empty($_POST['nom']) 
+                && isset($_POST['prenom']) && !empty($_POST['prenom']) 
+                && isset($_POST['email']) && !empty($_POST['email']) 
+                && isset($_POST['genre']) && !empty($_POST['genre']) 
+                && isset($_POST['pass']) && !empty($_POST['pass'])
+                && isset($_POST['pass1']) && !empty($_POST['pass1'])){
+                    $nom = strip_tags($_POST['nom']);
+                    $prenom = strip_tags($_POST['prenom']);
+                    $email = strip_tags($_POST['email']);
+                    $genre = strip_tags($_POST['genre']);
+                    $pass = sha1($_POST['pass']);
+                    $pass1 = sha1($_POST['pass1']);
+
+                    $key = rand(10000, 99999);
+        
+
+                    $carac_nom = strlen($nom);
+                    $carac_prenom = strlen($prenom);
+
+
+                    if($carac_nom > 1){
+                        if($carac_prenom > 2){
+                            if($pass == $pass1){
+                                if(filter_var($email,FILTER_VALIDATE_EMAIL)){
+                                    $select = $bd->prepare("SELECT * FROM users WHERE email = ?");
+                                    $select->execute(array($email));
+                                    if($select->rowCount() == 0){
+                            $req = $bd->prepare("INSERT INTO users (nom, prenom, email, genre, pass, clef) VALUES (?,?,?,?,?,?)");
+                                        $req->execute(array($nom, $prenom, $email, $genre, $pass, $key));
+
+                                        $_SESSION['email'] = $email;
+                                        $_SESSION['prenom'] = $prenom;
+                                        $_SESSION['nom'] = $nom;
+                                        $_SESSION['genre'] = $genre;
+                                        $_SESSION['pass'] = $pass;
+                                        $_SESSION['clef'] = $key;
+
+                                        $head = "MIME-Version: 1.0\r\n";
+                                        $head = "Content-Type: text/html; charset=UTF-8\r\n";
+                                        $head = "Content-Transfer-Encoding: 8bit";
+
+                                        $sms = " <html>
+                                        <body>
+                                            <div;>
+                                            <h3>Salut $prenom $nom</h3>
+                                            <p>Merci de votre inscription, veuillez la <a           href=\"http://localhost/login_singup_forgotPassword/confirm.php?        mail=".urlencode($email)."&key=".$key."djfdklsk\">confirmer</a> afin de pouvoir accéder à votre compte</p><br>
+                                            <br><br>
+                                            Cordialement 
+                                            </div>
+                                        </body>
+                                        </html>";
+                            
+
+                            send_mail($email, 'Confirmation Email', $sms, $head);
+                              
+                            
+                         $message ="<p class=\"alert alert-success\" style=\"text-align: center;\">Inscription réussie. Veuillez vérifier votre compte email un message de confirmation vous a été envoyé. </p>";
+
+                           
+                           
+                                }else{
+                                    $message ="<p class=\"alert alert-danger\">Votre adresse email existe déjà !</p>"; 
+                                }
+                                }else {
+                                    $message ="<p class=\"alert alert-danger\">Votre email est invalide</p>"; 
+                    }
+
+                            }else{
+                                $message ="<p class=\"alert alert-danger\">Vos mots de passe ne sont pas conformes </p>"; 
+                            }
+                        }else{
+                            $message ="<p style=\"text-align: center\" class=\"alert alert-danger\">Veuillez entrer votre prénom</p>"; 
+                     }
+        }           else{
+                        $message ="<p style=\"text-align: center\" class=\"alert alert-danger\">Veuillez entrer votre nom</p>"; 
+                    }
+                }
+            }
+
+
+
    - exemple.sql :
 Afin de pouvoir stocker et gérer les données, la base de données "exemple" est créée avec comme première table "users" qui recevra les données entrées à partir du formulaire d'inscription.
 
@@ -87,3 +176,63 @@ Dans le but créer une connexion à la base de donnée pour manipuler les donné
 
 - Phase 2: login.php
    - login.php: 
+Dans cette page on retrouve le formulaire permettant aux utilisateurs inscrits d'accéder à leur profil. Pour ce faire les données parmi elles l'email et le mot de passe qu'ils ont renseigné à partir du formulaire d'inscription vont être utiliées par eux pour accéder à leur profil.
+
+        Exemple: formulaire
+
+            <form action="" method="POST">
+                <h3>LOGIN</h3>
+                    <?= $message?>
+                <div class="form-floating input">
+                <input type="email"class="form-control" name="email" placeholder="Email">
+                <label for="Email"><i class="fa fa-user"></i> Email</label>
+                </div>
+                <div class="form-floating input">
+                <input type="password"class="form-control" name="pass" placeholder="Mot de passe">
+                <label for="Password"><i class="fa fa-lock"></i> Mot de passe</label>
+                </div>
+                <input type="submit" class="btn w3-black" value="Se connecter" id="bouton">
+                <div id="lien">
+                <a href="index.php">Sign up</a>
+                <a href="./forgot_password/forgot.php">Mot De Passe Oublié ?</a>
+                </div>
+            </form>
+
+
+        Exemple : script
+
+        session_start();
+                    require './database/lien.php';
+
+
+                    $message="";
+                    if(isset($_POST)){
+                        $mail;
+                        if(isset($_POST['email']) && !empty($_POST['email'])
+                        && isset($_POST['pass']) && !empty($_POST['pass'])){
+                        $mail = $_POST['email'];
+                        $pass = sha1($_POST['pass']);
+                        $req = $bd->prepare("SELECT * FROM users WHERE email = ? AND pass = ?");
+                        $req->execute(array($mail, $pass));
+
+                            if($req->rowCount() > 0){
+                                $_SESSION['nom'];
+                                $nom = $_SESSION['nom'];
+                                $_SESSION['prenom'];
+                                $prenom = $_SESSION['prenom'];
+                                $_SESSION['genre'];
+                                $genre = $_SESSION['genre'];
+                                $_SESSION['email'] = $mail;
+                                $_SESSION['pass'] = $pass;
+                                $_SESSION['id'] = $req->fetch()['id'];
+
+                                header('Location: profil.php');
+
+            
+
+                            }else{
+                                $message= "<p style=\"width: 100%; text-align: center\" class=\"alert alert-danger\">Mot de passe ou adresse email incorrect</p>";
+                            }
+                        }
+            
+                    }
