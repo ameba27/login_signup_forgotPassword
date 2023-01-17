@@ -62,11 +62,11 @@ Dans la page index se trouve le formulaire d'inscription fait avec du htlm, css 
 
                     if($carac_nom > 1){
                         if($carac_prenom > 2){
-                i           f($pass == $pass1){
+                           if($pass == $pass1){
                                 if(filter_var($email,FILTER_VALIDATE_EMAIL)){
                                     $select = $bd->prepare("SELECT * FROM users WHERE email = ?");
                                     $select->execute(array($email));
-                        i           f($select->rowCount() == 0){
+                                    if($select->rowCount() == 0){
                                         $req = $bd->prepare("INSERT INTO users (nom, prenom, email, genre, pass, clef) VALUES (?,?,?,?,?,?)");
                                         $req->execute(array($nom, $prenom, $email, $genre, $pass, $key));
 
