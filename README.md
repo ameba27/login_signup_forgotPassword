@@ -9,7 +9,7 @@ NB:  dans chaque étape le CSS a été utilisé ainsi que le framework BOOTSTRAP
 # Première étape
 Dans cette étape, la page index.php, suivie de la création de la base de données importée dans exemple.sql et la connexion à cette base de données aux différents formulaires grâce à la création de la page lien.php se trouvant dans le dossier database sont les éléments de notre première phase.
 
-- Phase 1: index.php, exemple.sql et lien.php
+- Phase 1: index.php, exemple.sql, lien.php et confirm.php
    - index.php :
 Dans la page index se trouve le formulaire d'inscription fait avec du htlm, css et du boostrap et le script permettant d'envoyer les données dans la base de données précisément dans la table "users".
 
@@ -176,7 +176,7 @@ Dans le but créer une connexion à la base de donnée pour manipuler les donné
 - La page confirm.php :
 Après avoir terminé l'inscription, un message est envoyé l'adresse email de l'utilisateur qui vient de s'inscrire pour confirmer son inscription afin qu'il puisse accéder à son profil en passant par la page login.php.
 
-        Exemple : confirm.php
+      Exemple : confirm.php
 
                         session_start();
                         require './database/lien.php';
@@ -356,7 +356,7 @@ Cette dernière étape fait référence au mot de passe oublié. Pour créer ce 
                     `code` int(5) NOT NULL,
                     `time_expire` int(11) NOT NULL
                     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-                    
+
 
 - La page forgot.php : 
 Cette page a un formulaire qui a un champs permettant de recueillir l'adresse email qui recevera un message ayant un code dont l'utilisateur pour utiliser dans la page suivante. Pour cela fonctionne, c'est le script php et le système PHPMailer qui sont utilisés. En effet, quelques restrictions ont été mises afin de sécuriser et d'éviter les adresses emails ne se trouvant pas dans notre base de données. Ainsi lorsque l'utilisateur utilise une adresse email valide dans le formulaire, il sera dirigé vers une autre page qui a un autre formulaire. 
