@@ -297,3 +297,6 @@ Cette page contient le script qui permet à l'utilisateur de sortir de son profi
 
 
 # Troisième étape 
+Cette dernière étape fait référence au mot de passe oublié. Pour créer ce système de mot passe oublié, quatre (4) pages ont été utilisées (forgot.php, code.php, pass.php et confirm.php) en plus des pages CSS.  
+
+- La page forgot.php : 
