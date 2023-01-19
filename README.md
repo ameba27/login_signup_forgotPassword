@@ -2,7 +2,7 @@
 Le projet a pour but de tester le systéme de connexion, de déconnexion et de réinialisation de mot de passe avec quelques astuces comme l'envoi de message de confirmation après inscription ou encore celui d'un code afin de changer un mot de passe.  Pour réaliser un tel projet, trois étapes ont suffi :
   - La première étape constitue la création d'une base de donnée exemple.sql, création du dossier database et des pages suivantes : lien.php, index.php et login.php.
   - La deuxième étape qui est la suite de la première constitue la création  des pages suivantes: profil.php et deconnexion.php.
-  - La troisième et dernière étape c'est celle de la création de confirm.php et du dossier forgot_password et ses composants.
+  - La troisième et dernière étape c'est celle de la création du dossier forgot_password et ses composants et de confirm.php.
 
 NB:  dans chaque étape le CSS a été utilisé ainsi que le framework BOOTSTRAP. En outre, dans les première et dernière étapes le système PHPMailer est aussi utilisé.
 
@@ -233,3 +233,67 @@ Dans cette page on retrouve le formulaire permettant aux utilisateurs inscrits d
                         }
             
                     }
+
+
+# Deuxième étape
+Dans cette étape qui est la suite de la précédente est constituée de la page profil.php et de deconnxeion.php.
+     
+- La page profil.php :
+Cette page est celle que l'on doit accéder après avoir entré nos données sur le formulaire de login.php. Ce qui est intéressant ici est le fait de mettre les données dans la variable globale $_SESSION de la page login.php à celle de profil.php qui a permis l'accès à l'information de la première page à la seconde susmentionnées.
+
+        Exemple: La structure de la page 
+
+                    <div id="user"class="dropdown">
+                    <i class="fa fa-user "></i>
+                    <span><?= $_SESSION['prenom']?>&nbsp;&nbsp;<?= $_SESSION['nom']?></span>
+                    <button data-bs-toggle="dropdown"></button>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="deconnexion.php">Se déconnecter</a></li>
+                    </ul>
+                    </div>
+                    <div id="info">
+                    <h3>INFORMATIONS</h3>
+                    <h2><span><strong>Nom &nbsp;:</strong></span>&nbsp;<?= $_SESSION['nom']?></h2>
+                    <h2><span><strong>Prénom &nbsp;:</strong></span>&nbsp;<?= $_SESSION['prenom']?></h2>
+                    <h2><span><strong>Email &nbsp;:</strong></span>&nbsp;<?= $_SESSION['email']?></h2>
+                    <h2><span><strong>Genre &nbsp;:</strong></span>&nbsp;<?= $_SESSION['genre']?></h2>
+                    <p>Si vous voulez vous déconnecter, veuillez appuyer sur la bande de couleur jaune moutarde</p>
+                    </div>
+
+
+        Exemple: script 
+
+                    // Commencer la session ou ouvrir la session.
+                    session_start();
+                    require './database/lien.php';
+
+                    // Si les données entrées par l'utilisateur sont différentes de celles de la session alors revenir sur la page login.php
+                    // Sinon accéder au profil (à la page profil.php).
+                    if(!$_SESSION['id'] && !$_SESSION['email'] && !$_SESSION['pass']){
+                        header('Location: login.php');
+                    }else {
+                        $req = $bd->prepare("SELECT * FROM users WHERE id = ?");
+                        $req->execute(array($_SESSION['id']));
+                        $recup = $req->fetch();
+
+                        $_SESSION['id'] =  $recup['id'];
+                        $_SESSION['nom'] =  $recup['nom'];
+                        $_SESSION['prenom'] =  $recup['prenom'];
+                        $_SESSION['genre'] =  $recup['genre'];
+                        $_SESSION['email'] =  $recup['email'];
+
+                    }            
+
+
+- La page deconnexion.php : 
+Cette page contient le script qui permet à l'utilisateur de sortir de son profil c'est-à-dire de détruire la session ou encore de la quitter pour être redirigé vers la page login.php.
+
+    Exemple: deconnexion.php
+
+                    session_start();
+                    $_SESSION = array();
+                    session_destroy();
+                    header('Location: ./login.php?fdkflrfpfrfglktd');
+
+
+# Troisième étape 
