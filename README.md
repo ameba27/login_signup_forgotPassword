@@ -1,6 +1,6 @@
 # login_signup_forgotPassword
 Le projet a pour but de tester le systéme de connexion, de déconnexion et de réinialisation de mot de passe avec quelques astuces comme l'envoi de message de confirmation après inscription ou encore celui d'un code afin de changer un mot de passe.  Pour réaliser un tel projet, trois étapes ont suffi :
-  - La première étape constitue la création d'une base de donnée exemple.sql, création du dossier database et des pages suivantes : lien.php, index.php et login.php.
+  - La première étape constitue la création d'une base de donnée exemple.sql, création du dossier database et des pages suivantes : lien.php, index.php, confirm.php et login.php.
   - La deuxième étape qui est la suite de la première constitue la création  des pages suivantes: profil.php et deconnexion.php.
   - La troisième et dernière étape c'est celle de la création du dossier forgot_password et ses composants et de confirm.php.
 
@@ -173,6 +173,55 @@ Dans le but créer une connexion à la base de donnée pour manipuler les donné
             $bd->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_WARNING);
         
 
+- La page confirm.php :
+Après avoir terminé l'inscription, un message est envoyé l'adresse email de l'utilisateur qui vient de s'inscrire pour confirmer son inscription afin qu'il puisse accéder à son profil en passant par la page login.php.
+
+        Exemple : confirm.php
+
+                        session_start();
+                        require './database/lien.php';
+
+
+                        <div class="contenaire">
+                        <?php
+                        $_SESSION['email'];
+                        $email =  $_SESSION['email'];
+                        $_SESSION['clef'];
+                        $key = $_SESSION['clef'];
+
+                        $req= $bd->prepare("SELECT * FROM users WHERE email = ? AND clef = ?");
+                        $req->execute(array($email, $key));
+
+                        if($req->rowCount() == 1){
+                            $take = $req->fetch();
+                            if($take['confirm'] == 0){
+                                $change = $bd->prepare("UPDATE users SET confirm = 1 WHERE email = ? AND clef = ?");
+                                $change->execute(array($email, $key));
+                                ?>
+                                <p id="conteneur" class="alert alert-success">
+                                Félicitation! Votre compte a été bien confirmé. Cliquer <a href="./login.php">ici</a> pour vous connecter.
+                                </p>
+                                <?php
+                            }else {
+                                ?>
+                                <p id="conteneur" class="alert alert-primary">
+                                Votre compte a été déjà confirmé. Cliquer <a href="./login.php">ici</a> pour vous connecter.
+                                </p>
+                                <?php
+                            }
+
+                        }else{
+                            ?>
+                            <p id="conteneur" class="alert alert-danger">
+                            L'utilisateur n'existe pas. 
+                            </p>
+                        <?php
+                        }
+
+                        ?>
+                        </div>
+
+
 - Phase 2: login.php
    - login.php: 
 Dans cette page on retrouve le formulaire permettant aux utilisateurs inscrits d'accéder à leur profil. Pour ce faire les données parmi elles l'email et le mot de passe qu'ils ont renseigné à partir du formulaire d'inscription vont être utiliées par eux pour accéder à leur profil.
@@ -297,6 +346,181 @@ Cette page contient le script qui permet à l'utilisateur de sortir de son profi
 
 
 # Troisième étape 
-Cette dernière étape fait référence au mot de passe oublié. Pour créer ce système de mot passe oublié, quatre (4) pages ont été utilisées (forgot.php, code.php, pass.php et confirm.php) en plus des pages CSS.  
+Cette dernière étape fait référence au mot de passe oublié. Pour créer ce système, trois (3) pages ont été utilisées (forgot.php, code.php et pass.php) en plus des pages CSS. Il faut savoir aussi qu'une autre table a été créée pour ce système. Il sagit de la table suivante:
+
+    Exemple: exemple.sql
+
+                    CREATE TABLE `codes` (
+                    `id` int(11) NOT NULL,
+                    `email` varchar(400) NOT NULL,
+                    `code` int(5) NOT NULL,
+                    `time_expire` int(11) NOT NULL
+                    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+                    
 
 - La page forgot.php : 
+Cette page a un formulaire qui a un champs permettant de recueillir l'adresse email qui recevera un message ayant un code dont l'utilisateur pour utiliser dans la page suivante. Pour cela fonctionne, c'est le script php et le système PHPMailer qui sont utilisés. En effet, quelques restrictions ont été mises afin de sécuriser et d'éviter les adresses emails ne se trouvant pas dans notre base de données. Ainsi lorsque l'utilisateur utilise une adresse email valide dans le formulaire, il sera dirigé vers une autre page qui a un autre formulaire. 
+
+        Exemple: formulaire
+
+                    <form action="" method="POST">
+                        <h3>Mot de Passe Oublié</h3>
+                        <h4>Entrez votre adresse email</h4>
+                        <?= $sms ?>
+                        <input type="email" name="email" class="form-control" placeholder="Email">
+                        <input type="submit" class="btn w3-black" value="Suivant">
+                    </form>
+
+
+        Exemple :script PHP
+
+                    session_start();
+                    require '../database/lien.php';
+                    require "../phpMailer/mail.php";
+                    $sms ="";
+                    if($_POST){
+                        if(isset($_POST['email']) && !empty($_POST['email'])){
+                            $mail = $_POST['email'];
+                            if(filter_var($mail, FILTER_VALIDATE_EMAIL)){
+                                $select= $bd->prepare("SELECT * FROM users WHERE email = ?");
+                                $select->execute(array($mail));
+
+                                if($select->rowCount() > 0){
+                                    $code = rand(10000, 99999); // Il va générer des chiffres aléatoires utilisés comme code
+                                    $time = time() + (60 * 3); // Si le temps dépasse 3 minutes alors $code expire;
+
+                                    $req = $bd->prepare("INSERT INTO codes (email, code, time_expire) VALUES (?,?,?)");
+                                    $req->execute(array($mail, $code, $time));
+                                    header('Location: code.php');
+
+                                    $_SESSION['code'] = $code;
+                                    $_SESSION['email'] = $mail;
+                                    $_SESSION['time_expire'] = $time;
+                
+                                    $head = "MIME-Version: 1.0\r\n";
+                                    $head .= "Content-Type: text/htlm, charset: UTF-8\r\n";
+                                    $head .= "Content-Transfer-Encoding: 8bit";
+                                    $sujet="Modification de Mot de passe"; 
+                    
+                 
+                                    $message = " 
+                                    <htlm>
+                                    <body>
+                                        <div>
+                                        <p style=\"font-size: 1.2em\">Cher utilisateur voici le code qui vous permettra de modifier votre mot de passe : <span style=\"font-size: 1.3em\"><strong>$code</strong></span></p>
+                                        </div>
+                                    </body>
+                                    </htlm>"; 
+
+                                    send_mail($mail, $sujet, $message, $head);
+               
+                                } 
+                            }else {
+                                $sms ="<p style=\"text-align: center;\" class=\"alert alert-danger\">Email invalide</p>"; 
+                            }
+                        }
+                    }
+
+                
+- La page code.php :
+Elle est la page dont l'utilisateur est redirigé lorsqu'il entre son email. C'est dans cette page contenant un formulaire avec un champs dans lequel il (l'utilisateur) mettra le code reçu sur son compte email. Pour ce faire, comme d'habitude un script php pour que le formulaire fonctionne et que l'utilisateur soit redirigé vers une autre page. 
+
+            Exemple: formulaire
+
+                        <form action="" method="POST" class="conteneur">
+                            <h3>Mot de Passe Oublié</h3>
+                            <h4>Entrez le code reçu par email</h4>
+                            <?= $sms?>
+                            <input type="text" name="code_m" class="form-control" placeholder="12345">
+                            <input type="submit" class="btn w3-black" value="Suivant">
+                            <div id="dernier">
+                                <a href="forgot.php"><input type="button" class="btn w3-blue" value="Retour"></a>
+                                <a href="code.php"><input type="button" class="btn w3-purple" value="Restaurer"></a>
+                            </div>
+                        </form>
+
+            
+            Exemple : script
+
+                        session_start();
+                        require '../database/lien.php';
+                        $sms="";
+                        $_SESSION['email'];
+                        $email = $_SESSION['email'];
+                        $_SESSION['code'];
+                        $code = $_SESSION['code'];
+
+
+                        if(isset($_POST)){
+                            $time = time();
+                            if(isset($_POST['code_m']) && !empty($_POST['code_m'])){
+                                $code_m = $_POST['code_m'];
+                                $req = $bd->prepare("SELECT * FROM codes WHERE code = ?");
+                                $req->execute(array($code_m));
+        
+        
+                                if($code_m == $code){
+                                    if($req->rowCount() > 0){
+                                        $row = $req->fetch();
+                                        if($row['time_expire'] > $time){
+                                            $sms = "<p style=\"text-align: center;\" class=\"alert alert-danger\">Le code a expirer</p>"; 
+                                        }
+                                        header('Location: pass.php');
+                                    }
+                                }else {
+                                    $sms = "<p style=\"text-align: center;\" class=\"alert alert-danger\">Le code est incorrect</p>";
+                                }
+                            }
+                        }
+
+
+- La page pass.php :
+Après avoir renseigné le code reçu, l'utilisateur est redirigé dans cette page nommée pass.php du fait que c'est ici que la modification du mot de passe se fera. Dans cette partie se trouve un formulaire avec deux champs dans lesquels il sera renseigné le nouveau mot de passe.
+
+            Exemple : formulaire
+                
+                           <form action="" method="POST" class="detenteur">
+                                <h3>Mot de Passe Oublié</h3>
+                                <h4>Modifiez votre mot de passe</h4>
+                                <?= $sms?>
+                                <input type="password" name="pass" class="form-control" placeholder="Mot de passe">
+                                <input type="password" name="pass1" class="form-control" placeholder="Confirmer le mot de passe ">
+                                <input type="submit" class="btn w3-green" value="Suivant">
+                                <div id="dernier">
+                                    <a href="code.php"><input type="button" class="btn w3-blue" value="Retour"></a>
+                                    <a href="pass.php"><input type="button" class="btn w3-purple" value="Restaurer"></a>
+                                </div>
+                            </form>
+
+            Exemple: script 
+
+                        session_start();
+                        require '../database/lien.php';
+
+                        $_SESSION['email'];
+                        $email= $_SESSION['email'];
+
+                        $sms="";
+                        if(isset($_POST)){
+    
+
+                            if(isset($_POST['pass']) && !empty($_POST['pass']) && isset($_POST['pass1']) && !empty($_POST['pass1'])){
+                                $pass= sha1($_POST['pass']);
+                                $pass1= sha1($_POST['pass1']);
+
+                                // Si les mots de passe sont conformes
+                                if($pass == $pass1){
+                                    // Modifier le mot de passe
+                                    $req = $bd->prepare("UPDATE users SET pass = ? WHERE email = ? ");
+                                    $req->execute(array($pass, $email));
+                                    header('Location: ../login.php'); 
+                                }else{
+                                    $sms = "<p style=\"text-align: center\" class=\"alert alert-danger\">Mots de passe non conformes</p>"; 
+                                }
+
+                            }
+                        }
+
+
+
+NB: Le CSS n'est pas mentionné car facile à faire. Par contre toutes informations sur le système d'envoi de message par email ,PHPMailer, il faut aller sur le repository sendMail.
